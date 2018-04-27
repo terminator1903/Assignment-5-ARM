@@ -5,10 +5,16 @@
 #include <iomanip>
 using namespace std;
 
+
 vector<string> instructions;
 map<string,int> labels;
 map<string,int> latency;
 bool pEnd = false;
+bool stall;
+int cycles[5];
+int opcode[5];
+int iNum[5];
+
 
 bool valid(string s)                    // helper function in determining operand for register
 {
@@ -21,34 +27,65 @@ bool valid(string s)                    // helper function in determining operan
 }
 
 
-void forward()
+void nextStage()
 {
-	cout<<"forwarded\n";
+	for(int i=4;i>0;i--)
+	{
+		if(cycles[i]==0&&cycles[i-1]==0)
+		{
+			iNum[i] = iNum[i-1];
+			opcode[i] = opcode[i-1];
+		}
+		else if(cycles[i-1]>0&&cycles[i]==0)
+		{
+			stall = true;
+			break;
+		}
+	}
 }
+
 void writeback()
 {
 	cout<<"Oye Mundea\n";
 }
+
+
 void memoryAccess()
 {
 	cout<<"Memory Chalao\n";
 }
+
+
 void execute()
 {
 	cout<<"Execution Done\n";
 }
+
+
 void idecode()
 {
 	cout<<"Hadippa\n";
 }
+
+
 void ifetch()
 {
-	cout<<"Burrah\n";
+	if(cycles[0]>0)
+	{
+		cycles[0]--;
+	}
+	else if(!(stall) &&cycles[0]==0)
+	{
+		iNum[0]++;
+		opcode[0] = instructions[iNum[0]].opcode;
+		cycles[0] = 1;
+	}
 }
+
 
 void nextCycle()
 {
-	forward();
+	nextStage();
 	writeback();
 	memoryAccess();
 	execute();
