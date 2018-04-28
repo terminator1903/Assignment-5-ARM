@@ -42,8 +42,9 @@ map<string,int> latency;
 bool pEnd = false;
 bool stall;
 int cycles[5];
-int opcode[5];
+string opcode[5];
 int iNum[5];
+int op1[5],op2[5],op3[5];
 
 
 bool valid(string s)                    // helper function in determining operand for register
@@ -55,10 +56,10 @@ bool valid(string s)                    // helper function in determining operan
     }
     return true;
 }
-/*
 
 void nextStage()
 {
+	stall = false;
 	for(int i=4;i>0;i--)
 	{
 		if(cycles[i]==0&&cycles[i-1]==0)
@@ -82,33 +83,144 @@ void writeback()
 
 void memoryAccess()
 {
-	cout<<"Memory Chalao\n";
+	if(cycles[3]>0) cycles[3]--;
+	if(cycles[3]==0)
+	{
+		if(!stall)
+		{
+			if(opcode[3]=="ldr")
+			{
+				
+			}
+			else if(opcode[3]=="str")
+			{
+
+			}
+			else
+			{
+				cycles[3] = 0;
+			}
+		}
+	}
 }
 
 
 void execute()
 {
-	cout<<"Execution Done\n";
+	if(cycles[2]>0) cycles[2]--;
+	if(cycles[2]==0)
+	{
+		if(!stall)
+		{
+			if(opcode[2]=="ldr")
+			{
+				if(op3[2]==0)
+				{
+					cycles[2] = 0;
+				}
+				else
+				{
+					cycles[2] = latency["add"] - 1;
+					op2[2] += op3[2];	
+				}
+			}
+			else if(opcode[2]=="str")
+			{
+				if(op3[2]==0)
+				{
+					cycles[2] = 0;
+				}
+				else
+				{
+					cycles[2] = latency["add"] - 1;
+					op2[2] += op3[2];	
+				}
+			}
+			else
+			{
+				if(opcode[2]=="add")
+				{
+					op2[2] = op2[2] + op3[2];
+					cycles[2] = latency["add"] - 1;
+				}
+				else if(opcode[2]=="sub")
+				{
+					op2[2] -=op3[2];
+					cycles[2] = latency["sub"] - 1;
+				}
+				else if(opcode[2]=="mul")
+				{
+					op2[2] *= op3[2];
+					cycles[2] = latency["mul"] - 1;
+				}
+				else if (opcode[2]=="div")
+				{
+					op[2] /=op[3];
+					cycles[2] = latency["div"] - 1;
+				}
+			}
+		}
+	}
 }
 
 
 void idecode()
 {
-	cout<<"Hadippa\n";
+	if(!stall)
+	{
+		cycles[1] = 0;
+		if(opcode[1]=="str")
+		{
+			op1[1] = r[instructions[iNum[1]].operand1];
+			op2[1] = r[instructions[iNum[1]].operand2];
+			if(instructions[iNum[1]].operand3present)
+			{
+				if(instructions[iNum[1]].operand3type == true)
+				{
+					op3[1] = r[instructions[iNum[1]].operand3];
+				}
+				else op3[1] = r[instructions[iNum[1]].operand3]; 
+			}
+			else
+			{
+				op3[1] = 0;
+			}
+		}
+		else
+		{
+			op1[1] = instructions[iNum[1]].operand1;
+			if(instructions[iNum[1]].operand2type == true)
+			{
+				op2[1] = r[instructions[iNum[1]].operand2];
+			}
+			else
+			{
+				op2[1] = instructions[iNum[1]].operand2;	
+			}
+			if(instructions[iNum[1]].operand3present==true)
+			{
+				if(instructions[iNum[1]].operand3type == true)
+				{
+					op3[1] = r[instructions[iNum[1]].operand3];
+				}
+				else
+				{
+					op3[1] = instructions[iNum[1]].operand2;	
+				}	
+			}
+			else op3[1] = 0; 
+		}
+	}
 }
 
 
 void ifetch()
 {
-	if(cycles[0]>0)
-	{
-		cycles[0]--;
-	}
-	else if(!(stall) &&cycles[0]==0)
+	if(!stall)
 	{
 		iNum[0]++;
-		opcode[0] = instructions[iNum[0]].opcode;
-		cycles[0] = 1;
+		opcode[0] = instructions[iNum[0]].instructiontype;
+		cycles[0] = 0;
 	}
 }
 
@@ -122,4 +234,3 @@ void nextCycle()
 	idecode();
 	ifetch();
 }
-*/
