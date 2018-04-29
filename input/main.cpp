@@ -1,5 +1,6 @@
 #include "Assign5helper.h"
 using namespace std;
+
 int main (int argc,char *argv[]) 
 {
     ifstream lfile(argv[2]);
@@ -50,12 +51,11 @@ int main (int argc,char *argv[])
     {
         int i=0;
         string instructiontype;
-        int operand1,operand2,operand3;
-        bool operand3type,operand3present,operand2type;
+        int operand1,operand2,operand3,BranchNum=-1;
+        bool operand3type,operand3present,operand2type,isBranch=false;
         while ( myfile>>line )
         {   
             if(line==",") continue;
-            if(line[line.length()-1]==',') line = line.substr(0,line.length()-1);
             for(int i=0;i<line.length();i++)
             {
                 if(line[i]>='A'&&line[i]<='Z')
@@ -63,10 +63,9 @@ int main (int argc,char *argv[])
                     line[i] = line[i] - 'A' + 'a';
                 }
             }
-            i++;
             if(line[line.length() - 1]==':')
             {
-                label1.second = instructions.size();
+                label1.second = instructions.size()+1;
                 label1.first = line.substr(0,line.length()-1);
                 labels[label1.first] = label1.second;
                 continue;
@@ -76,11 +75,22 @@ int main (int argc,char *argv[])
                 getline(myfile,leaveline);
                 continue;
             }
+            if(line[line.length()-1]==',') line = line.substr(0,line.length()-1);
+            i++;
             if(i==1){
+            	if(line=="bne"||line=="bge"||line=="b"||line=="beq"){
+            		isBranch=true;
+            	}
                 instructiontype=line;
             }
             if(i==2){
-                operand1=stoi(line.substr(1,line.length()-1));
+            	if(isBranch){
+            		BranchNum=labels[line];
+            		i=0;
+            	}
+            	else{
+            		operand1=stoi(line.substr(1,line.length()-1));
+            	}
             }
             if(i==3){
                 if(line[0]=='#'){
@@ -119,8 +129,10 @@ int main (int argc,char *argv[])
                 }
             }
             if(i==0){
-                InstructionBlock obj(instructiontype,operand1,operand2type,operand2,operand3present,operand3type,operand3);
+                InstructionBlock obj(instructiontype,isBranch,BranchNum,operand1,operand2type,operand2,operand3present,operand3type,operand3);
                 instructions.push_back(obj);
+                isBranch=false;
+                BranchNum=-1;
             }
             
         }
@@ -133,6 +145,7 @@ int main (int argc,char *argv[])
     	return 0;
     }
     cout<<"Welcome to ARM-Sim(Pipelined Version)\n";
+    /*
 	cout<<"The program operates in different modes.\n";
 	cout<<"1). For step by step execution, type\'s\' \n2). For full execution at any stage, press\'f\'(default mode).\n\n";
 	char mode = 'k';
@@ -162,8 +175,13 @@ int main (int argc,char *argv[])
             cout<<endl;
         }
 	}
+	*/
     for(int i=0;i<instructions.size();i++){
-        cout<<instructions[i].instructiontype<<" "<<instructions[i].operand1<<" "<<instructions[i].operand2type<<" "<<instructions[i].operand2<<" "<<instructions[i].operand3present<<" "<<instructions[i].operand3type<<" "<<instructions[i].operand3<<endl;
+        cout<<instructions[i].instructiontype<<" "<<instructions[i].isBranch<<" "<<instructions[i].BranchNum<<" "<<instructions[i].operand1<<" "<<instructions[i].operand2type<<" "<<instructions[i].operand2<<" "<<instructions[i].operand3present<<" "<<instructions[i].operand3type<<" "<<instructions[i].operand3<<endl;
+    }
+    map<string,int> ::iterator it;
+    for(it=labels.begin();it!=labels.end();it++){
+    	cout<<it->first<<" "<<it->second<<endl;
     }
     return 0;
 }
