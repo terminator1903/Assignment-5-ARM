@@ -1,6 +1,6 @@
 mov r1, #10
 Mov r2, #1
-mov r3, #0
+mov r3, #104
 str r2, [ r1, #2 ]
 ldr r2, [ r1, #2 ]		
 add r3, r3, #4

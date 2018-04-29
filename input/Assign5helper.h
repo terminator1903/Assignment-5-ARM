@@ -42,10 +42,11 @@ map<string,int> latency;
 bool pEnd = false;
 bool stall;
 int cycles[5];
+int memory[1000];
 string opcode[5];
 int iNum[5];
-int op1[5],op2[5],op3[5];
-
+int op1[5],op2[5],op3[5],r[16];
+bool noins[5] = {true,true,true,true,true};
 
 bool valid(string s)                    // helper function in determining operand for register
 {
@@ -66,6 +67,9 @@ void nextStage()
 		{
 			iNum[i] = iNum[i-1];
 			opcode[i] = opcode[i-1];
+			op1[i] = op1[i-1];
+			op2[i] = op2[i-1];
+			op3[i] = op3[i-1];
 		}
 		else if(cycles[i-1]>0&&cycles[i]==0)
 		{
@@ -77,7 +81,13 @@ void nextStage()
 
 void writeback()
 {
-	cout<<"Oye Mundea\n";
+	if(!stall)
+	{
+		if(opcode[4]!="str")
+		{
+			r[op1[4]] = op2[4];
+		}
+	}
 }
 
 
@@ -90,11 +100,13 @@ void memoryAccess()
 		{
 			if(opcode[3]=="ldr")
 			{
-				
+				cycles[3] = latency["ldr"] - 1;
+				op2[3] = memory[op2[3]]; 	
 			}
 			else if(opcode[3]=="str")
 			{
-
+				cycles[3] = latency["str"] - 1;
+				memory[op2[3]] = op1[3];
 			}
 			else
 			{
@@ -136,6 +148,10 @@ void execute()
 					op2[2] += op3[2];	
 				}
 			}
+			else if(opcode[2]=="mov")
+			{
+				cycles[2] = latency["mov"] - 1;
+			}
 			else
 			{
 				if(opcode[2]=="add")
@@ -155,7 +171,7 @@ void execute()
 				}
 				else if (opcode[2]=="div")
 				{
-					op[2] /=op[3];
+					op2[2] /=op3[2];
 					cycles[2] = latency["div"] - 1;
 				}
 			}
@@ -218,9 +234,14 @@ void ifetch()
 {
 	if(!stall)
 	{
-		iNum[0]++;
-		opcode[0] = instructions[iNum[0]].instructiontype;
-		cycles[0] = 0;
+		if(iNum[0]>instructions.size()) noins[0] = true;
+		else
+		{
+			noins[0] = false;
+			iNum[0]++;
+			opcode[0] = instructions[iNum[0]].instructiontype;
+			cycles[0] = 0;
+		}
 	}
 }
 

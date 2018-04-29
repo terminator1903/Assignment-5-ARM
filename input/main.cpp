@@ -1,6 +1,5 @@
 #include "Assign5helper.h"
 using namespace std;
-int r[13];
 int main (int argc,char *argv[]) 
 {
     ifstream lfile(argv[2]);
@@ -134,7 +133,6 @@ int main (int argc,char *argv[])
     	return 0;
     }
     cout<<"Welcome to ARM-Sim(Pipelined Version)\n";
-    /*
 	cout<<"The program operates in different modes.\n";
 	cout<<"1). For step by step execution, type\'s\' \n2). For full execution at any stage, press\'f\'(default mode).\n\n";
 	char mode = 'k';
@@ -148,8 +146,20 @@ int main (int argc,char *argv[])
 		}
 		else mode = 'f';
 		nextCycle();
+        if(mode=='s')
+        {
+            for(int i=0;i<5;i++)
+            {
+                cout<<opcode[i]<<" ";
+            }
+            cout<<endl;
+            for(int i=0;i<13;i++)
+            {
+                cout<<"R"<<i<<" : "<<r[i]<<endl;
+            }
+            cout<<endl;
+        }
 	}
-    */
     for(int i=0;i<instructions.size();i++){
         cout<<instructions[i].instructiontype<<" "<<instructions[i].operand1<<" "<<instructions[i].operand2type<<" "<<instructions[i].operand2<<" "<<instructions[i].operand3present<<" "<<instructions[i].operand3type<<" "<<instructions[i].operand3<<endl;
     }
