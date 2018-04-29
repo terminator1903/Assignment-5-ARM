@@ -148,9 +148,11 @@ int main (int argc,char *argv[])
 		nextCycle();
         if(mode=='s')
         {
+            if(stall) cout<<"Pipelined is stalled\n";
             for(int i=0;i<5;i++)
             {
-                cout<<opcode[i]<<" ";
+                if(!noins[i]) cout<<opcode[i]<<" ("<<cycles[i]<<") | ";
+                else cout<<"null | ";
             }
             cout<<endl;
             for(int i=0;i<13;i++)

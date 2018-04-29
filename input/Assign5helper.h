@@ -70,6 +70,7 @@ void nextStage()
 			op1[i] = op1[i-1];
 			op2[i] = op2[i-1];
 			op3[i] = op3[i-1];
+			noins[i] = noins[i-1];
 		}
 		else if(cycles[i-1]>0&&cycles[i]==0)
 		{
@@ -234,7 +235,7 @@ void ifetch()
 {
 	if(!stall)
 	{
-		if(iNum[0]>instructions.size()) noins[0] = true;
+		if(iNum[0]>=instructions.size()) noins[0] = true;
 		else
 		{
 			noins[0] = false;
@@ -245,6 +246,14 @@ void ifetch()
 	}
 }
 
+bool checkEnd()
+{
+	for(int i=0;i<5;i++)
+	{
+		if(noins[i]==false) return false;
+	}
+	return true;
+}
 
 void nextCycle()
 {
@@ -254,4 +263,5 @@ void nextCycle()
 	execute();
 	idecode();
 	ifetch();
+	pEnd = checkEnd();
 }
