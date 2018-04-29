@@ -9,14 +9,18 @@ int nCycles = 0, nInstructions = 0;
 class InstructionBlock{
 public:
 	string instructiontype;
+	bool isBranch;
+	int BranchNum;
 	int operand1;
 	bool operand2type;
 	int operand2;
 	bool operand3type;
 	bool operand3present;
 	int operand3;
-	InstructionBlock(string instructiontype,int operand1,bool operand2type,int operand2,bool operand3present,bool operand3type,int operand3){
+	InstructionBlock(string instructiontype,bool isBranch,int BranchNum,int operand1,bool operand2type,int operand2,bool operand3present,bool operand3type,int operand3){
 		this->instructiontype=instructiontype;
+		this-> isBranch=isBranch;
+		this->BranchNum=BranchNum;
 		this->operand1=operand1;
 		this->operand2type=operand2type;
 		this->operand2=operand2;
@@ -26,6 +30,8 @@ public:
 	}
 	void printInstructionBlock(){
 		cout<<"instructiontype"<<instructiontype<<endl;
+		cout<<"branch present"<<isBranch<<endl;
+		cout<<"branch link number"<<BranchNum<<endl;
 		cout<<"operand1"<<operand1<<endl;
 		cout<<"operand2type"<<operand2type<<endl;
 		cout<<"operand2"<<operand2<<endl;
