@@ -155,6 +155,8 @@ int main (int argc,char *argv[])
                 else cout<<"null | ";
             }
             cout<<endl;
+            cout<<"Number of Instructions executed: "<<nInstructions;
+            cout<<"\nTotal number of clock cycles: "<<nCycles<<endl;
             for(int i=0;i<13;i++)
             {
                 cout<<"R"<<i<<" : "<<r[i]<<endl;

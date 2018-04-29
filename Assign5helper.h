@@ -13,7 +13,9 @@ bool pEnd = false;
 bool stall;
 int cycles[5];
 int opcode[5];
+int op1[5],op2[5],op3[5];
 int iNum[5];
+int r[13],lr,sp;
 
 
 bool valid(string s)                    // helper function in determining operand for register
@@ -58,27 +60,25 @@ void memoryAccess()
 
 void execute()
 {
-	cout<<"Execution Done\n";
+
 }
 
 
 void idecode()
 {
-	cout<<"Hadippa\n";
+	if(!stall)
+	{
+		op1[1] = opcode[] 
+	}
 }
 
 
 void ifetch()
 {
-	if(cycles[0]>0)
+	if(!stall)
 	{
-		cycles[0]--;
-	}
-	else if(!(stall) &&cycles[0]==0)
-	{
+		opcode[0] = instructions[iNum[0]].instructiontype;
 		iNum[0]++;
-		opcode[0] = instructions[iNum[0]].opcode;
-		cycles[0] = 1;
 	}
 }
 

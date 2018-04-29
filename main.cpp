@@ -81,10 +81,10 @@ int main (int argc,char *argv[])
     	cout << "Unable to open file\n";
     	return 0;
     }
-    for(int i=0;i<instructions.size();i++)
+    /*for(int i=0;i<instructions.size();i++)
     {
     	cout<<instructions[i]<<endl;
-    }
+    }*/
     cout<<"Welcome to ARM-Sim(Pipelined Version)\n";
 	cout<<"The program operates in different modes.\n";
 	cout<<"1). For step by step execution, type\'s\' \n2). For full execution at any stage, press\'f\'(default mode).\n\n";

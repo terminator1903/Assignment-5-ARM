@@ -4,7 +4,7 @@
 #include <fstream>
 #include <iomanip>
 using namespace std;
-
+int nCycles = 0, nInstructions = 0;
 
 class InstructionBlock{
 public:
@@ -176,6 +176,7 @@ void execute()
 					cycles[2] = latency["div"] - 1;
 				}
 			}
+			nInstructions++;
 		}
 	}
 }
@@ -257,6 +258,7 @@ bool checkEnd()
 
 void nextCycle()
 {
+	nCycles++;
 	nextStage();
 	writeback();
 	memoryAccess();
