@@ -11,7 +11,7 @@ add r2, r2, #1
 LoadI:
 sub r1, r1, #1
 cmp r1, #0 	
-bne StoreIntegers
+b StoreIntegers
 mov r1, #1000
 mov r4, #0     
 add r4, r4, r2   
