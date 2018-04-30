@@ -145,10 +145,10 @@ int main (int argc,char *argv[])
     	return 0;
     }
     cout<<"Welcome to ARM-Sim(Pipelined Version)\n";
-    /*
 	cout<<"The program operates in different modes.\n";
 	cout<<"1). For step by step execution, type\'s\' \n2). For full execution at any stage, press\'f\'(default mode).\n\n";
 	char mode = 'k';
+    iNum[0] = -1;
 	while(!pEnd)
 	{
 		if(mode!='f')
@@ -158,26 +158,38 @@ int main (int argc,char *argv[])
 			if(mode !='s') mode = 'f';
 		}
 		else mode = 'f';
-		nextCycle();
+        nextCycle();
         if(mode=='s')
         {
             if(stall) cout<<"Pipelined is stalled\n";
             for(int i=0;i<5;i++)
             {
-                if(!noins[i]) cout<<opcode[i]<<" ("<<cycles[i]<<") | ";
-                else cout<<"null | ";
+                cout<<opcode[i]<<" ("<<cycles[i]<<") | ";
+                //else cout<<"null ("<<cycles[i]<<") | ";
             }
             cout<<endl;
+            /*for(int i=0;i<5;i++)
+            {
+                cout<<op1[i]<<" "<<op2[i]<<endl;
+            }*/
             cout<<"Number of Instructions executed: "<<nInstructions;
             cout<<"\nTotal number of clock cycles: "<<nCycles<<endl;
             for(int i=0;i<13;i++)
             {
                 cout<<"R"<<i<<" : "<<r[i]<<endl;
             }
+            cout<<"Memory Status:\n";
+            for(int i=0;i<1000;i++)
+            {
+                if(memory[i]!=0)
+                {
+                    cout<<i<<" "<<memory[i]<<endl;
+                }
+
+            }
             cout<<endl;
         }
 	}
-	*/
     for(int i=0;i<instructions.size();i++){
         cout<<instructions[i].instructiontype<<" "<<instructions[i].isBranch<<" "<<instructions[i].BranchNum<<" "<<instructions[i].operand1<<" "<<instructions[i].operand2type<<" "<<instructions[i].operand2<<" "<<instructions[i].operand3present<<" "<<instructions[i].operand3type<<" "<<instructions[i].operand3<<endl;
     }

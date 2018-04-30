@@ -46,13 +46,14 @@ map<string,int> labels;
 map<string,int> latency;
 
 bool pEnd = false;
-bool stall;
+bool stall = false,loadstall = false;
 int cycles[5];
 int memory[1000];
 string opcode[5];
 int iNum[5];
 int op1[5],op2[5],op3[5],r[16];
 bool noins[5] = {true,true,true,true,true};
+bool branch[5] = {false,false,false,false,false};
 
 bool valid(string s)                    // helper function in determining operand for register
 {
@@ -64,12 +65,94 @@ bool valid(string s)                    // helper function in determining operan
     return true;
 }
 
+
+bool checkLoadStall()
+{
+	int j = iNum[0]+1;
+	if(instructions[j].instructiontype=="str")
+	{
+		if((instructions[j].operand1==instructions[iNum[0]].operand1)||(instructions[j].operand2type==true&&instructions[j].operand2==instructions[iNum[0]].operand1)||(instructions[j].operand3present==true&&instructions[j].operand3type==true&&instructions[j].operand3==instructions[iNum[0]].operand1))
+		{
+			return true;
+		}
+	}
+	else if(!instructions[2].isBranch)
+	{
+		if((instructions[j].operand2type==true&&instructions[j].operand2==instructions[iNum[0]].operand1)||(instructions[j].operand3present==true&&instructions[j].operand3type==true&&instructions[j].operand3==instructions[iNum[0]].operand1))
+		{
+			return true;
+		}	
+	}
+	return false;
+}
+
+void forwardData()
+{
+	if(opcode[3]!="str"&&!noins[3]&&!noins[1]&&!branch[3]&&!branch[1])
+	{
+		if(opcode[1]=="str")
+		{
+			if(instructions[iNum[3]].operand1==instructions[iNum[1]].operand1)
+			{
+				op1[1] = op2[3];
+				//cout<<"The value "<<op2[3]<<"is being forwarded. The ins is "<<opcode[3]<<endl;
+			}
+		}
+		if(instructions[iNum[1]].operand2type==true && instructions[iNum[1]].operand2==instructions[iNum[3]].operand1)
+		{
+			op2[1] = op2[3];
+			//cout<<"FD - op\n";
+		}
+		if(instructions[iNum[1]].operand3present==true&&instructions[iNum[1]].operand3type==true&&instructions[iNum[1]].operand3==instructions[iNum[3]].operand1)
+		{
+			op3[1] = op2[3];
+			//cout<<"FD - op1\n";
+		}
+	}
+	if(opcode[2]!="str"&&!noins[2]&&!noins[1]&&!branch[2]&&!branch[1])
+	{
+		if(opcode[1]=="str")
+		{
+			if(instructions[iNum[2]].operand1==instructions[iNum[1]].operand1)
+			{
+				op1[1] = op2[2];
+				//cout<<"FD - op3\n";
+			}
+		}
+		if(instructions[iNum[1]].operand2type==true && instructions[iNum[1]].operand2==instructions[iNum[2]].operand1)
+		{
+			op2[1] = op2[2];
+			//cout<<"FD - op4\n"<<opcode[1]<<" "<<opcode[2]<<" "<<op2[2]<<" "<<op1[1];
+		}
+		if(instructions[iNum[1]].operand3present==true&&instructions[iNum[1]].operand3type==true&&instructions[iNum[1]].operand3==instructions[iNum[2]].operand1)
+		{
+			op3[1] = op2[2];
+			//cout<<"FD - op5\n";
+		}
+	}
+}
+
 void nextStage()
 {
 	stall = false;
-	for(int i=4;i>0;i--)
+	for(int i=4;i>-1;i--)
 	{
-		if(cycles[i]==0&&cycles[i-1]==0)
+		if(cycles[i]>0&&!noins[i])
+		{
+			stall = true;
+			return;
+		}
+		if(noins[i]) opcode[i] = "null";
+	}
+	if(!stall)
+	{
+		if(loadstall==true) loadstall = false;
+		if(noins[0]==false&&opcode[0]=="ldr") loadstall = checkLoadStall();
+	}
+	if(!stall) forwardData();
+	if(!stall)
+	{
+		for(int i=4;i>0;i--)
 		{
 			iNum[i] = iNum[i-1];
 			opcode[i] = opcode[i-1];
@@ -77,14 +160,11 @@ void nextStage()
 			op2[i] = op2[i-1];
 			op3[i] = op3[i-1];
 			noins[i] = noins[i-1];
-		}
-		else if(cycles[i-1]>0&&cycles[i]==0)
-		{
-			stall = true;
-			break;
+			branch[i] = branch[i-1];
 		}
 	}
 }
+
 
 void writeback()
 {
@@ -94,8 +174,10 @@ void writeback()
 		{
 			r[op1[4]] = op2[4];
 		}
+		//if(opcode[4]!="null") cout<<"Doing WriteBack\n";
 	}
 }
+
 
 
 void memoryAccess()
@@ -108,12 +190,17 @@ void memoryAccess()
 			if(opcode[3]=="ldr")
 			{
 				cycles[3] = latency["ldr"] - 1;
-				op2[3] = memory[op2[3]]; 	
+				op2[3] = memory[op2[3]];
+				// cout<<"Getting value from memory location "<<op2[3]<<endl;
 			}
 			else if(opcode[3]=="str")
 			{
 				cycles[3] = latency["str"] - 1;
 				memory[op2[3]] = op1[3];
+				op2[3] = op1[3];
+				//cout<<"Store in memoryAccess"<<op2[3]<<endl;
+				//cout<<op1[3]<<endl;
+
 			}
 			else
 			{
@@ -122,6 +209,7 @@ void memoryAccess()
 		}
 	}
 }
+
 
 
 void execute()
@@ -142,6 +230,7 @@ void execute()
 					cycles[2] = latency["add"] - 1;
 					op2[2] += op3[2];	
 				}
+				//cout<<"Getting value from memory location "<<op2[3]<<endl;
 			}
 			else if(opcode[2]=="str")
 			{
@@ -182,7 +271,9 @@ void execute()
 					cycles[2] = latency["div"] - 1;
 				}
 			}
-			nInstructions++;
+			if(opcode[2]!="null") nInstructions++;
+			//cout<<op2[2]<<" is op2-3 \n";
+			//cout<<op3[2]<<" is op3-3\n";
 		}
 	}
 }
@@ -190,7 +281,7 @@ void execute()
 
 void idecode()
 {
-	if(!stall)
+	if(!stall&&!noins[1])
 	{
 		cycles[1] = 0;
 		if(opcode[1]=="str")
@@ -203,7 +294,7 @@ void idecode()
 				{
 					op3[1] = r[instructions[iNum[1]].operand3];
 				}
-				else op3[1] = r[instructions[iNum[1]].operand3]; 
+				else op3[1] = instructions[iNum[1]].operand3; 
 			}
 			else
 			{
@@ -229,24 +320,33 @@ void idecode()
 				}
 				else
 				{
-					op3[1] = instructions[iNum[1]].operand2;	
+					op3[1] = instructions[iNum[1]].operand3;	
 				}	
 			}
 			else op3[1] = 0; 
 		}
+		//cout<<op2[1]<<" is op2 \n";
+		//cout<<op3[1]<<" is op3 \n";
 	}
 }
 
 
 void ifetch()
 {
+	//cout<<stall<<endl;
 	if(!stall)
 	{
-		if(iNum[0]>=instructions.size()) noins[0] = true;
+		//cout<<(iNum[0]>=instructions.size()-1)<<endl;
+		if((iNum[0]>=(long long)(instructions.size()-1))||loadstall==true)
+		{
+			noins[0] = true;
+		}
 		else
 		{
 			noins[0] = false;
+			branch[0] = false;
 			iNum[0]++;
+			if(instructions[iNum[0]].isBranch) branch[0] = true;
 			opcode[0] = instructions[iNum[0]].instructiontype;
 			cycles[0] = 0;
 		}
