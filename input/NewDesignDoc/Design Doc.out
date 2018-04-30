@@ -1,0 +1,30 @@
+\BOOKMARK [0][-]{chapter.1}{INTRODUCTION}{}% 1
+\BOOKMARK [1][-]{section.1.1}{What is this project about}{chapter.1}% 2
+\BOOKMARK [0][-]{chapter.2}{Work-Plan}{}% 3
+\BOOKMARK [1][-]{section.2.1}{Basic Algorithm}{chapter.2}% 4
+\BOOKMARK [0][-]{chapter.3}{COMPONENTS}{}% 5
+\BOOKMARK [1][-]{section.3.1}{Instruction Memory}{chapter.3}% 6
+\BOOKMARK [1][-]{section.3.2}{Register File}{chapter.3}% 7
+\BOOKMARK [1][-]{section.3.3}{ALU}{chapter.3}% 8
+\BOOKMARK [1][-]{section.3.4}{Data Memory}{chapter.3}% 9
+\BOOKMARK [1][-]{section.3.5}{PC}{chapter.3}% 10
+\BOOKMARK [1][-]{section.3.6}{Controller}{chapter.3}% 11
+\BOOKMARK [1][-]{section.3.7}{Pipeline}{chapter.3}% 12
+\BOOKMARK [2][-]{subsection.3.7.1}{Instruction Fetch}{section.3.7}% 13
+\BOOKMARK [2][-]{subsection.3.7.2}{Register Retrieval}{section.3.7}% 14
+\BOOKMARK [2][-]{subsection.3.7.3}{ALU Processing}{section.3.7}% 15
+\BOOKMARK [2][-]{subsection.3.7.4}{Data Memory Access}{section.3.7}% 16
+\BOOKMARK [2][-]{subsection.3.7.5}{Write-back to Register}{section.3.7}% 17
+\BOOKMARK [1][-]{section.3.8}{AIM}{chapter.3}% 18
+\BOOKMARK [0][-]{chapter.4}{TESTCASES}{}% 19
+\BOOKMARK [1][-]{section.4.1}{STRUCTURAL HAZARD}{chapter.4}% 20
+\BOOKMARK [1][-]{section.4.2}{DATA HAZARD}{chapter.4}% 21
+\BOOKMARK [2][-]{subsection.4.2.1}{Example 1}{section.4.2}% 22
+\BOOKMARK [2][-]{subsection.4.2.2}{Example 2}{section.4.2}% 23
+\BOOKMARK [1][-]{section.4.3}{CONTROL HAZARD}{chapter.4}% 24
+\BOOKMARK [2][-]{subsection.4.3.1}{Example 1}{section.4.3}% 25
+\BOOKMARK [2][-]{subsection.4.3.2}{Example 2}{section.4.3}% 26
+\BOOKMARK [0][-]{chapter.5}{TEST INPUT FILES}{}% 27
+\BOOKMARK [1][-]{subsection.5.0.1}{INPUT FILE 1}{chapter.5}% 28
+\BOOKMARK [2][-]{subsection.5.0.2}{INPUT FILE 2}{subsection.5.0.1}% 29
+\BOOKMARK [2][-]{subsection.5.0.3}{Latency Input File}{subsection.5.0.1}% 30
