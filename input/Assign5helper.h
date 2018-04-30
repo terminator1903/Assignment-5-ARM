@@ -46,9 +46,11 @@ map<string,int> labels;
 map<string,int> latency;
 
 bool pEnd = false;
-bool stall = false,loadstall = false;
+bool stall = false,loadstall = false,changeBranch = false;
 int cycles[5];
+int cmp = 0,bnum = 0;
 int memory[1000];
+int stack[10];
 string opcode[5];
 int iNum[5];
 int op1[5],op2[5],op3[5],r[16];
@@ -88,7 +90,7 @@ bool checkLoadStall()
 
 void forwardData()
 {
-	if(opcode[3]!="str"&&!noins[3]&&!noins[1]&&!branch[3]&&!branch[1])
+	if(opcode[3]!="str"&&opcode[3]!="cmp"&&!noins[3]&&!noins[1]&&!branch[3]&&!branch[1])
 	{
 		if(opcode[1]=="str")
 		{
@@ -132,6 +134,15 @@ void forwardData()
 	}
 }
 
+void flushandRestart(int n)
+{
+	for(int i = 0;i<2;i++)
+	{
+		opcode[i]="null";
+		noins[i] = true;
+	}
+	iNum[0] = n-1;
+}
 void nextStage()
 {
 	stall = false;
@@ -146,6 +157,11 @@ void nextStage()
 	}
 	if(!stall)
 	{
+		if(changeBranch==true)
+		{
+			flushandRestart(bnum);
+			changeBranch = false;
+		}
 		if(loadstall==true) loadstall = false;
 		if(noins[0]==false&&opcode[0]=="ldr") loadstall = checkLoadStall();
 	}
@@ -168,7 +184,7 @@ void nextStage()
 
 void writeback()
 {
-	if(!stall)
+	if(!stall&&!branch[4]&&opcode[4]!="cmp")
 	{
 		if(opcode[4]!="str")
 		{
@@ -191,7 +207,6 @@ void memoryAccess()
 			{
 				cycles[3] = latency["ldr"] - 1;
 				op2[3] = memory[op2[3]];
-				// cout<<"Getting value from memory location "<<op2[3]<<endl;
 			}
 			else if(opcode[3]=="str")
 			{
@@ -210,8 +225,6 @@ void memoryAccess()
 	}
 }
 
-
-
 void execute()
 {
 	if(cycles[2]>0) cycles[2]--;
@@ -219,7 +232,50 @@ void execute()
 	{
 		if(!stall)
 		{
-			if(opcode[2]=="ldr")
+			if(branch[2])
+			{
+				if(opcode[2]=="b")
+				{
+					changeBranch = true;
+					cycles[2] = latency["b"] - 1;
+					bnum = op1[2] - 1;
+				}
+				else if(opcode[2]=="bl")
+				{
+					changeBranch = true;
+					cycles[2] = latency["bl"] - 1;
+					bnum = op1[2] - 1;
+					r[14] = iNum[2];
+				}
+				else if(opcode[2]=="bne")
+				{
+					cycles[2] = latency["bne"] - 1;
+					if(cmp!=3)
+					{
+						changeBranch = true;
+						bnum = op1[2] - 1;
+					}
+				}
+				else if(opcode[2]=="bge")
+				{
+					cycles[2] = latency["bge"] - 1;
+					if(cmp!=2)
+					{
+						changeBranch = true;
+						bnum = op1[2] - 1;
+					}
+				}
+				else if(opcode[2]=="bne")
+				{
+					cycles[2] = latency["bne"] - 1;
+					if(cmp!=1)
+					{
+						changeBranch = true;
+						bnum = op1[2] - 1;
+					}
+				}
+			}
+			else if(opcode[2]=="ldr")
 			{
 				if(op3[2]==0)
 				{
@@ -244,10 +300,6 @@ void execute()
 					op2[2] += op3[2];	
 				}
 			}
-			else if(opcode[2]=="mov")
-			{
-				cycles[2] = latency["mov"] - 1;
-			}
 			else
 			{
 				if(opcode[2]=="add")
@@ -269,6 +321,27 @@ void execute()
 				{
 					op2[2] /=op3[2];
 					cycles[2] = latency["div"] - 1;
+				}
+				else if(opcode[2]=="mov")
+				{
+					op2[2] += op3[3];
+					cycles[2] = latency["mov"] - 1;
+				}
+				else if(opcode[2]=="cmp")
+				{
+					cycles[2] = latency["cmp"] - 1;
+					if(op1[2]>op2[2])
+					{
+						cmp = 1;
+					}
+					else if (op1[1]<op1[2])
+					{
+						cmp = 2;
+					}
+					else if (op1[1] = op1[2])
+					{
+						cmp = 3;
+					}
 				}
 			}
 			if(opcode[2]!="null") nInstructions++;
@@ -300,6 +373,15 @@ void idecode()
 			{
 				op3[1] = 0;
 			}
+		}
+		else if(branch[1])
+		{
+			op1[1] = instructions[iNum[1]].BranchNum;
+		}
+		else if(opcode[1]=="cmp")
+		{
+			op1[1] = r[instructions[iNum[1]].operand1];
+			op2[1] = r[instructions[iNum[1]].operand2];
 		}
 		else
 		{
