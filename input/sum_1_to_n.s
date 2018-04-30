@@ -1,7 +1,7 @@
 mov r1, #10
 Mov r2, #1
 mov r3, #156
-mov r4, #129
+mov r4, r3
 str r1, [ r1, #2 ]
 ldr r4, [ r1, #2 ]
 str r3, [ r4, #7 ]		
@@ -19,3 +19,6 @@ add r3, r3, #4
 sub r1, r1, #1   
 cmp r1, #999 
 bne LoadI
+mov pc, lr
+add sp, sp, #4
+

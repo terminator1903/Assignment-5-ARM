@@ -56,6 +56,7 @@ int main (int argc,char *argv[])
         while ( myfile>>line )
         {   
             if(line==",") continue;
+            if(line[line.length()-1]==',') line = line.substr(0,line.length()-1);
             for(int i=0;i<line.length();i++)
             {
                 if(line[i]>='A'&&line[i]<='Z')
@@ -75,8 +76,17 @@ int main (int argc,char *argv[])
                 getline(myfile,leaveline);
                 continue;
             }
-            if(line[line.length()-1]==',') line = line.substr(0,line.length()-1);
+            
             i++;
+            if(line=="pc"){
+                line="r15";
+            }
+            if(line=="lr"){
+                line="r14";
+            }
+            if(line=="sp"){
+                line="r13";
+            }
             if(i==1){
             	if(line=="bne"||line=="bge"||line=="b"||line=="beq"){
             		isBranch=true;
@@ -103,6 +113,9 @@ int main (int argc,char *argv[])
                     i--;
                 }
                 if(line[0]=='r'){
+                    if(instructiontype=="mov"){
+                        i=0;
+                    }
                     operand2type=true;
                     operand2=stoi(line.substr(1,line.length()-1));
                 }
@@ -145,6 +158,7 @@ int main (int argc,char *argv[])
     	return 0;
     }
     cout<<"Welcome to ARM-Sim(Pipelined Version)\n";
+    /*
 	cout<<"The program operates in different modes.\n";
 	cout<<"1). For step by step execution, type\'s\' \n2). For full execution at any stage, press\'f\'(default mode).\n\n";
 	char mode = 'k';
@@ -168,10 +182,10 @@ int main (int argc,char *argv[])
                 //else cout<<"null ("<<cycles[i]<<") | ";
             }
             cout<<endl;
-            /*for(int i=0;i<5;i++)
-            {
-                cout<<op1[i]<<" "<<op2[i]<<endl;
-            }*/
+            //for(int i=0;i<5;i++)
+            //{
+            //    cout<<op1[i]<<" "<<op2[i]<<endl;
+            //}
             cout<<"Number of Instructions executed: "<<nInstructions;
             cout<<"\nTotal number of clock cycles: "<<nCycles<<endl;
             for(int i=0;i<13;i++)
@@ -190,6 +204,7 @@ int main (int argc,char *argv[])
             cout<<endl;
         }
 	}
+*/
     for(int i=0;i<instructions.size();i++){
         cout<<instructions[i].instructiontype<<" "<<instructions[i].isBranch<<" "<<instructions[i].BranchNum<<" "<<instructions[i].operand1<<" "<<instructions[i].operand2type<<" "<<instructions[i].operand2<<" "<<instructions[i].operand3present<<" "<<instructions[i].operand3type<<" "<<instructions[i].operand3<<endl;
     }
