@@ -78,7 +78,7 @@ int main (int argc,char *argv[])
             if(line[line.length()-1]==',') line = line.substr(0,line.length()-1);
             i++;
             if(i==1){
-            	if(line=="bne"||line=="bge"||line=="b"||line=="beq"){
+            	if(line=="bne"||line=="bge"||line=="b"||line=="beq"||line=="ble"){
             		isBranch=true;
             	}
                 instructiontype=line;
@@ -149,6 +149,7 @@ int main (int argc,char *argv[])
 	cout<<"1). For step by step execution, type\'s\' \n2). For full execution at any stage, press\'f\'(default mode).\n\n";
 	char mode = 'k';
     iNum[0] = -1;
+    r[13] = 4999;
 	while(!pEnd)
 	{
 		if(mode!='f')

@@ -52,6 +52,7 @@ int cmp = 0,bnum = 0;
 int memory[1000];
 int stack[10];
 string opcode[5];
+bool stackop[5];
 int iNum[5];
 int op1[5],op2[5],op3[5],r[16];
 bool noins[5] = {true,true,true,true,true};
@@ -177,6 +178,7 @@ void nextStage()
 			op3[i] = op3[i-1];
 			noins[i] = noins[i-1];
 			branch[i] = branch[i-1];
+			stackop[i] = stackop[i-1];
 		}
 	}
 }
@@ -206,13 +208,14 @@ void memoryAccess()
 			if(opcode[3]=="ldr")
 			{
 				cycles[3] = latency["ldr"] - 1;
-				op2[3] = memory[op2[3]];
+				if(stackop[3]) op2[3] = memory[op2[3]];
+				else op2[3] = memory[op2[3]];
 			}
 			else if(opcode[3]=="str")
 			{
 				cycles[3] = latency["str"] - 1;
-				memory[op2[3]] = op1[3];
-				op2[3] = op1[3];
+				if(stackop[3]) memory[op2[3]] = op1[3];
+				else op2[3] = op1[3];
 				//cout<<"Store in memoryAccess"<<op2[3]<<endl;
 				//cout<<op1[3]<<endl;
 
@@ -324,8 +327,16 @@ void execute()
 				}
 				else if(opcode[2]=="mov")
 				{
-					op2[2] += op3[3];
 					cycles[2] = latency["mov"] - 1;
+					if(op1[2]==15)
+					{
+						changeBranch = true;
+						bnum = op2[1] + op3[1];
+					}
+					else
+					{
+						op2[2] += op3[3];
+					}
 				}
 				else if(opcode[2]=="cmp")
 				{
@@ -345,8 +356,6 @@ void execute()
 				}
 			}
 			if(opcode[2]!="null") nInstructions++;
-			//cout<<op2[2]<<" is op2-3 \n";
-			//cout<<op3[2]<<" is op3-3\n";
 		}
 	}
 }
@@ -366,6 +375,14 @@ void idecode()
 				if(instructions[iNum[1]].operand3type == true)
 				{
 					op3[1] = r[instructions[iNum[1]].operand3];
+					if(instructions[iNum[1]].operand3==13)
+					{
+						stackop[1] = true;
+					}
+					else
+					{
+						stackop[1] = false;
+					}
 				}
 				else op3[1] = instructions[iNum[1]].operand3; 
 			}
@@ -381,7 +398,8 @@ void idecode()
 		else if(opcode[1]=="cmp")
 		{
 			op1[1] = r[instructions[iNum[1]].operand1];
-			op2[1] = r[instructions[iNum[1]].operand2];
+			if(instructions[iNum[1]].operand2type==true) op2[1] = r[instructions[iNum[1]].operand2];
+			else op2[1] = instructions[iNum[1]].operand2;
 		}
 		else
 		{
@@ -403,6 +421,14 @@ void idecode()
 				else
 				{
 					op3[1] = instructions[iNum[1]].operand3;	
+				}
+				if(instructions[iNum[1]].operand3==13)
+				{
+					stack[1] = true;
+				}
+				else
+				{
+					stack[1] = false;
 				}	
 			}
 			else op3[1] = 0; 
@@ -432,6 +458,7 @@ void ifetch()
 			opcode[0] = instructions[iNum[0]].instructiontype;
 			cycles[0] = 0;
 		}
+		r[14] = iNum[0];
 	}
 }
 
