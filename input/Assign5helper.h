@@ -101,18 +101,31 @@ void forwardData()
 				//cout<<"The value "<<op2[3]<<"is being forwarded. The ins is "<<opcode[3]<<endl;
 			}
 		}
-		if(instructions[iNum[1]].operand2type==true && instructions[iNum[1]].operand2==instructions[iNum[3]].operand1)
+		if(opcode[1]=="cmp")
 		{
-			op2[1] = op2[3];
-			//cout<<"FD - op\n";
+			if(instructions[iNum[1]].operand1==instructions[iNum[3]].operand1) op2[1] = op2[3];
+			else if(instructions[iNum[1]].operand2type==true&&instructions[iNum[1]].operand2==instructions[iNum[3]].operand1)
+			{
+				op3[1] = op2[3];
+				//cout<<"FD - op5\n";
+			} 
+		
 		}
-		if(instructions[iNum[1]].operand3present==true&&instructions[iNum[1]].operand3type==true&&instructions[iNum[1]].operand3==instructions[iNum[3]].operand1)
+		else
 		{
-			op3[1] = op2[3];
-			//cout<<"FD - op1\n";
+			if(instructions[iNum[1]].operand2type==true && instructions[iNum[1]].operand2==instructions[iNum[3]].operand1)
+			{
+				op2[1] = op2[3];
+				//cout<<"FD - op\n";
+			}
+			if(instructions[iNum[1]].operand3present==true&&instructions[iNum[1]].operand3type==true&&instructions[iNum[1]].operand3==instructions[iNum[3]].operand1)
+			{
+				op3[1] = op2[3];
+				//cout<<"FD - op1\n";
+			}
 		}
 	}
-	if(opcode[2]!="str"&&!noins[2]&&!noins[1]&&!branch[2]&&!branch[1])
+	if(opcode[2]!="str"&&opcode[2]!="cmp"&&!noins[2]&&!noins[1]&&!branch[2]&&!branch[1])
 	{
 		if(opcode[1]=="str")
 		{
@@ -122,15 +135,28 @@ void forwardData()
 				//cout<<"FD - op3\n";
 			}
 		}
-		if(instructions[iNum[1]].operand2type==true && instructions[iNum[1]].operand2==instructions[iNum[2]].operand1)
+		if(opcode[1]=="cmp")
 		{
-			op2[1] = op2[2];
-			//cout<<"FD - op4\n"<<opcode[1]<<" "<<opcode[2]<<" "<<op2[2]<<" "<<op1[1];
+			if(instructions[iNum[1]].operand1==instructions[iNum[2]].operand1) op2[1] = op2[2];
+			else if(instructions[iNum[1]].operand2type==true&&instructions[iNum[1]].operand2==instructions[iNum[2]].operand1)
+			{
+				op3[1] = op2[2];
+				//cout<<"FD - op5\n";
+			} 
+		
 		}
-		if(instructions[iNum[1]].operand3present==true&&instructions[iNum[1]].operand3type==true&&instructions[iNum[1]].operand3==instructions[iNum[2]].operand1)
+		else
 		{
-			op3[1] = op2[2];
-			//cout<<"FD - op5\n";
+			if(instructions[iNum[1]].operand2type==true && instructions[iNum[1]].operand2==instructions[iNum[2]].operand1)
+			{
+				op2[1] = op2[2];
+				//cout<<"FD - op4\n"<<opcode[1]<<" "<<opcode[2]<<" "<<op2[2]<<" "<<op1[1];
+			}
+			if(instructions[iNum[1]].operand3present==true&&instructions[iNum[1]].operand3type==true&&instructions[iNum[1]].operand3==instructions[iNum[2]].operand1)
+			{
+				op3[1] = op2[2];
+				//cout<<"FD - op5\n";
+			}
 		}
 	}
 }
@@ -144,6 +170,8 @@ void flushandRestart(int n)
 	}
 	iNum[0] = n-1;
 }
+
+
 void nextStage()
 {
 	stall = false;
@@ -186,7 +214,7 @@ void nextStage()
 
 void writeback()
 {
-	if(!stall&&!branch[4]&&opcode[4]!="cmp")
+	if(!noins[4]&&!stall && !branch[4] && opcode[4]!="cmp")
 	{
 		if(opcode[4]!="str")
 		{
@@ -208,14 +236,14 @@ void memoryAccess()
 			if(opcode[3]=="ldr")
 			{
 				cycles[3] = latency["ldr"] - 1;
-				if(stackop[3]) op2[3] = memory[op2[3]];
+				if(stackop[3]) op2[3] = stack[op2[3]];
 				else op2[3] = memory[op2[3]];
 			}
 			else if(opcode[3]=="str")
 			{
 				cycles[3] = latency["str"] - 1;
-				if(stackop[3]) memory[op2[3]] = op1[3];
-				else op2[3] = op1[3];
+				if(stackop[3]) stack[op2[3]] = op1[3];
+				else memory[op2[3]] = op1[3];
 				//cout<<"Store in memoryAccess"<<op2[3]<<endl;
 				//cout<<op1[3]<<endl;
 
@@ -271,7 +299,7 @@ void execute()
 				else if(opcode[2]=="bne")
 				{
 					cycles[2] = latency["bne"] - 1;
-					if(cmp!=1)
+					if(cmp!=3)
 					{
 						changeBranch = true;
 						bnum = op1[2] - 1;
@@ -331,7 +359,7 @@ void execute()
 					if(op1[2]==15)
 					{
 						changeBranch = true;
-						bnum = op2[1] + op3[1];
+						bnum = op2[2] + op3[2];
 					}
 					else
 					{
@@ -341,15 +369,16 @@ void execute()
 				else if(opcode[2]=="cmp")
 				{
 					cycles[2] = latency["cmp"] - 1;
-					if(op1[2]>op2[2])
+					//cout<<op2[2]<<" with "<<op3[2]<<endl;
+					if(op2[2]>op3[2])
 					{
 						cmp = 1;
 					}
-					else if (op1[1]<op1[2])
+					else if (op2[2]<op3[2])
 					{
 						cmp = 2;
 					}
-					else if (op1[1] = op1[2])
+					else if (op2[2] == op2[2])
 					{
 						cmp = 3;
 					}
@@ -368,8 +397,8 @@ void idecode()
 		cycles[1] = 0;
 		if(opcode[1]=="str")
 		{
-			op1[1] = r[instructions[iNum[1]].operand1];
-			op2[1] = r[instructions[iNum[1]].operand2];
+			op2[1] = r[instructions[iNum[1]].operand1];
+			op3[1] = r[instructions[iNum[1]].operand2];
 			if(instructions[iNum[1]].operand3present)
 			{
 				if(instructions[iNum[1]].operand3type == true)
@@ -397,9 +426,9 @@ void idecode()
 		}
 		else if(opcode[1]=="cmp")
 		{
-			op1[1] = r[instructions[iNum[1]].operand1];
-			if(instructions[iNum[1]].operand2type==true) op2[1] = r[instructions[iNum[1]].operand2];
-			else op2[1] = instructions[iNum[1]].operand2;
+			op2[1] = r[instructions[iNum[1]].operand1];
+			if(instructions[iNum[1]].operand2type==true) op3[1] = r[instructions[iNum[1]].operand2];
+			else op3[1] = instructions[iNum[1]].operand2;
 		}
 		else
 		{
@@ -424,11 +453,11 @@ void idecode()
 				}
 				if(instructions[iNum[1]].operand3==13)
 				{
-					stack[1] = true;
+					stackop[1] = true;
 				}
 				else
 				{
-					stack[1] = false;
+					stackop[1] = false;
 				}	
 			}
 			else op3[1] = 0; 
@@ -445,7 +474,7 @@ void ifetch()
 	if(!stall)
 	{
 		//cout<<(iNum[0]>=instructions.size()-1)<<endl;
-		if((iNum[0]>=(long long)(instructions.size()-1))||loadstall==true)
+		if((iNum[0]>(long long)(instructions.size()-1))||loadstall==true)
 		{
 			noins[0] = true;
 		}
@@ -467,6 +496,7 @@ bool checkEnd()
 	for(int i=0;i<5;i++)
 	{
 		if(noins[i]==false) return false;
+		if(noins[0]==true) opcode[i]="null";
 	}
 	return true;
 }

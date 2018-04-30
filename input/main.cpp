@@ -1,6 +1,37 @@
 #include "Assign5helper.h"
 using namespace std;
-
+void printStatus()
+{
+    if(stall) cout<<"Pipelined is stalled\n";
+    for(int i=0;i<5;i++)
+    {
+        if(!noins[i]) cout<<opcode[i]<<" ("<<cycles[i]<<") | ";
+        else cout<<"null | ";
+    }
+    cout<<endl;
+    //for(int i=0;i<5;i++)
+    //{
+    //    cout<<op1[i]<<" "<<op2[i]<<endl;
+    //}
+    cout<<"Number of Instructions executed: "<<nInstructions;
+    cout<<"\nTotal number of clock cycles: "<<nCycles<<endl;
+    cout<<"Average IPC: "<<(double)nInstructions/nCycles<<endl<<endl<<endl;
+    for(int i=0;i<13;i++)
+    {
+        cout<<"R"<<i<<" : "<<r[i]<<endl;
+    }
+    cout<<endl;
+    //cout<<branch[4]<<endl;
+    cout<<"Memory Changed Locations:\n";
+    for(int i=0;i<1000;i++)
+    {
+        if(memory[i]!=0)
+        {
+            cout<<"Location -  "<<i<<" : "<<memory[i]<<endl;
+        }
+    }
+    cout<<endl;
+}
 int main (int argc,char *argv[]) 
 {
     ifstream lfile(argv[2]);
@@ -158,8 +189,7 @@ int main (int argc,char *argv[])
     	return 0;
     }
     cout<<"Welcome to ARM-Sim(Pipelined Version)\n";
-    /*
-	cout<<"The program operates in different modes.\n";
+    cout<<"The program operates in different modes.\n";
 	cout<<"1). For step by step execution, type\'s\' \n2). For full execution at any stage, press\'f\'(default mode).\n\n";
 	char mode = 'k';
     iNum[0] = -1;
@@ -176,42 +206,21 @@ int main (int argc,char *argv[])
         nextCycle();
         if(mode=='s')
         {
-            if(stall) cout<<"Pipelined is stalled\n";
-            for(int i=0;i<5;i++)
-            {
-                cout<<opcode[i]<<" ("<<cycles[i]<<") | ";
-                //else cout<<"null ("<<cycles[i]<<") | ";
-            }
-            cout<<endl;
-            //for(int i=0;i<5;i++)
-            //{
-            //    cout<<op1[i]<<" "<<op2[i]<<endl;
-            //}
-            cout<<"Number of Instructions executed: "<<nInstructions;
-            cout<<"\nTotal number of clock cycles: "<<nCycles<<endl;
-            for(int i=0;i<13;i++)
-            {
-                cout<<"R"<<i<<" : "<<r[i]<<endl;
-            }
-            cout<<"Memory Status:\n";
-            for(int i=0;i<1000;i++)
-            {
-                if(memory[i]!=0)
-                {
-                    cout<<i<<" "<<memory[i]<<endl;
-                }
-
-            }
-            cout<<endl;
+            printStatus();
         }
 	}
-    */
-    for(int i=0;i<instructions.size();i++){
+    if(mode=='f')
+    {
+        cout<<"The program is terminated. The status of the pipeline, various registers and memory is:\n\n";
+        printStatus();
+    }
+    else cout<<"\n\nThe program has been terminated\n";
+    /*for(int i=0;i<instructions.size();i++){
         cout<<instructions[i].instructiontype<<" "<<instructions[i].isBranch<<" "<<instructions[i].BranchNum<<" "<<instructions[i].operand1<<" "<<instructions[i].operand2type<<" "<<instructions[i].operand2<<" "<<instructions[i].operand3present<<" "<<instructions[i].operand3type<<" "<<instructions[i].operand3<<endl;
     }
     map<string,int> ::iterator it;
     for(it=labels.begin();it!=labels.end();it++){
     	cout<<it->first<<" "<<it->second<<endl;
-    }
+    }*/
     return 0;
 }
